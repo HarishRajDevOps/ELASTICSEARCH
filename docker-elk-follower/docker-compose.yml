@@ -1,0 +1,32 @@
+services:
+  elasticsearch-follower:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+    container_name: elasticsearch-follower
+    environment:
+      - node.name=follower-node
+      - cluster.name=follower-cluster
+      - discovery.seed_hosts=elasticsearch-leader:9300
+      - network.host=0.0.0.0
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+    volumes:
+      - follower_data:/usr/share/elasticsearch/data
+    networks:
+      - elasticsearch_net
+    restart: always
+
+volumes:
+  follower_data:
+    external: false
+
+networks:
+  elasticsearch_net:
+    driver: bridge
